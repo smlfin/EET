@@ -31,11 +31,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const viewPerformanceReportBtn = document.getElementById('viewPerformanceReportBtn');
     const reportDisplay = document.getElementById('reportDisplay');
 
-    // NEW: Report Menu Elements
-    const reportsMenuBtn = document.getElementById('reportsMenuBtn');
-    const reportsDropdown = document.getElementById('reportsDropdown');
-    const allBranchSnapshotBtn = document.getElementById('allBranchSnapshotBtn');
-    const allStaffOverallPerformanceBtn = document.getElementById('allStaffOverallPerformanceBtn'); // <--- ADDED FOR NEW REPORT
+    // Tab Elements
+    const allBranchSnapshotTabBtn = document.getElementById('allBranchSnapshotTabBtn');
+    const allStaffOverallPerformanceTabBtn = document.getElementById('allStaffOverallPerformanceTabBtn');
 
 
     // *** Data Storage ***
@@ -498,7 +496,7 @@ document.addEventListener('DOMContentLoaded', () => {
         reportDisplay.innerHTML += tableHtml;
     }
 
-    // NEW FUNCTION: Renders an "All Branch Snapshot" report
+    // Renders an "All Branch Snapshot" report
     function renderAllBranchSnapshot() {
         if (allCanvassingData.length === 0) {
             displayMessage("No data available to create an All Branch Snapshot. Please ensure data is loaded.");
@@ -589,7 +587,7 @@ document.addEventListener('DOMContentLoaded', () => {
         viewOptions.style.display = 'none';
     }
 
-    // NEW FUNCTION: Renders an "All Staff Performance Report" across all branches in a single table
+    // Renders an "All Staff Performance Report" across all branches in a single table
     function renderOverallStaffPerformanceReport() {
         if (allCanvassingData.length === 0) {
             displayMessage("No data available to create an All Staff Performance Report. Please ensure data is loaded.");
@@ -648,7 +646,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     <th colspan="3">New Customer Leads</th>
                 </tr>
                 <tr>
-                    <th>Act</th><th>Tgt</th><th>%</th>
                     <th>Act</th><th>Tgt</th><th>%</th>
                     <th>Act</th><th>Tgt</th><th>%</th>
                     <th>Act</th><th>Tgt</th><th>%</th>
@@ -734,6 +731,35 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Main Fetch and Event Listeners ---
 
+    // Function to handle tab switching
+    function showTab(tabId) {
+        // Remove 'active' class from all tab buttons
+        document.querySelectorAll('.tab-button').forEach(btn => {
+            btn.classList.remove('active');
+        });
+
+        // Add 'active' class to the clicked tab button
+        const clickedTab = document.getElementById(tabId);
+        if (clickedTab) {
+            clickedTab.classList.add('active');
+        }
+
+        // Hide branch/employee selection controls and clear report display
+        branchSelect.value = "";
+        employeeSelect.value = "";
+        employeeFilterPanel.style.display = 'none';
+        viewOptions.style.display = 'none';
+        reportDisplay.innerHTML = ''; // Clear previous report
+
+        // Render the content for the selected tab
+        if (tabId === 'allBranchSnapshotTabBtn') {
+            renderAllBranchSnapshot();
+        } else if (tabId === 'allStaffOverallPerformanceTabBtn') {
+            renderOverallStaffPerformanceReport();
+        }
+    }
+
+
     async function fetchData() {
         displayMessage("Fetching data from Google Sheet...");
         try {
@@ -747,7 +773,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (allCanvassingData.length > 0) {
                 populateDropdown(branchSelect, allCanvassingData, 'Branch Name');
-                displayMessage("Data loaded. Select a branch for detailed reports, or click 'Reports' for an overall snapshot.");
+                // Display initial message instead of a report
+                displayMessage("Data loaded. Select a branch from the dropdown above to view specific reports, or click a tab below to view global reports.");
             } else {
                 displayMessage("No data found in the Google Sheet.");
             }
@@ -759,14 +786,18 @@ document.addEventListener('DOMContentLoaded', () => {
             branchSelect.style.display = 'none';
             employeeFilterPanel.style.display = 'none';
             viewOptions.style.display = 'none';
-            if (reportsMenuBtn) reportsMenuBtn.style.display = 'none'; // Hide report menu if data fails
+            // Also hide tab buttons if data fetch fails
+            if (allBranchSnapshotTabBtn) allBranchSnapshotTabBtn.style.display = 'none';
+            if (allStaffOverallPerformanceTabBtn) allStaffOverallPerformanceTabBtn.style.display = 'none';
         }
     }
 
     // Event listener for Branch selection
     branchSelect.addEventListener('change', () => {
-        // Hide reports dropdown if active
-        if (reportsDropdown) reportsDropdown.classList.remove('show');
+        // Deactivate global report tabs when a specific branch is selected
+        document.querySelectorAll('.tab-button').forEach(btn => {
+            btn.classList.remove('active');
+        });
 
         const selectedBranch = branchSelect.value;
         employeeSelect.innerHTML = `<option value="">-- Select an Employee --</option>`; // Reset employee selection
@@ -794,15 +825,17 @@ document.addEventListener('DOMContentLoaded', () => {
             displayMessage(`Branch: ${selectedBranch}. Now select an employee or click "View All Staff Activity".`);
 
         } else {
-            // Reset to initial state
-            displayMessage("Please select a branch from the dropdown above to view reports, or click 'Reports' for an overall snapshot.");
+            // Reset to initial state and show default global report prompt
+            displayMessage("Please select a branch from the dropdown above to view specific reports, or click a global report tab below.");
         }
     });
 
     // Event listener for Employee selection
     employeeSelect.addEventListener('change', () => {
-        // Hide reports dropdown if active
-        if (reportsDropdown) reportsDropdown.classList.remove('show');
+        // Deactivate global report tabs when a specific employee is selected
+        document.querySelectorAll('.tab-button').forEach(btn => {
+            btn.classList.remove('active');
+        });
 
         const selectedEmployee = employeeSelect.value;
         reportDisplay.innerHTML = ''; // Clear report display
@@ -826,8 +859,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Event listeners for View Options buttons
     viewBranchSummaryBtn.addEventListener('click', () => {
-        // Hide reports dropdown if active
-        if (reportsDropdown) reportsDropdown.classList.remove('show');
         if (filteredBranchData.length > 0) {
             // Clear employee selection when viewing branch summary
             employeeSelect.value = "";
@@ -842,23 +873,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Event listener for the "View All Staff Performance Report" button
     viewBranchPerformanceReportBtn.addEventListener('click', () => {
-        // Hide reports dropdown if active
-        if (reportsDropdown) reportsDropdown.classList.remove('show');
         if (filteredBranchData.length > 0) {
             // Clear employee selection when viewing branch performance report
             employeeSelect.value = "";
             viewAllEntriesBtn.style.display = 'none';
             viewEmployeeSummaryBtn.style.display = 'none';
             viewPerformanceReportBtn.style.display = 'none';
-            renderBranchPerformanceReport(filteredBranchData); // Call the new rendering function
+            renderBranchPerformanceReport(filteredBranchData); // Call the rendering function
         } else {
             displayMessage("No data available for this branch to generate a performance report.");
         }
     });
 
     viewAllEntriesBtn.addEventListener('click', () => {
-        // Hide reports dropdown if active
-        if (reportsDropdown) reportsDropdown.classList.remove('show');
         if (selectedEmployeeEntries.length > 0) {
             renderEmployeeDetailedEntries(selectedEmployeeEntries);
         } else {
@@ -867,8 +894,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     viewEmployeeSummaryBtn.addEventListener('click', () => {
-        // Hide reports dropdown if active
-        if (reportsDropdown) reportsDropdown.classList.remove('show');
         if (selectedEmployeeEntries.length > 0) {
             renderEmployeeSummary(selectedEmployeeEntries);
         } else {
@@ -877,8 +902,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     viewPerformanceReportBtn.addEventListener('click', () => {
-        // Hide reports dropdown if active
-        if (reportsDropdown) reportsDropdown.classList.remove('show');
         if (selectedEmployeeEntries.length > 0) {
             const employeeDesignation = selectedEmployeeEntries[0]['Designation'] || 'Default';
             renderPerformanceReport(selectedEmployeeEntries, selectedEmployeeEntries[0]['Employee Name'], employeeDesignation);
@@ -887,39 +910,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // NEW: Event listener for Reports Menu Button
-    if (reportsMenuBtn) { // Added check in case element is not found
-        reportsMenuBtn.addEventListener('click', (event) => {
-            event.stopPropagation(); // Prevent click from immediately closing the dropdown via body listener
-            reportsDropdown.classList.toggle('show');
-        });
+    // Event listeners for tab buttons
+    if (allBranchSnapshotTabBtn) {
+        allBranchSnapshotTabBtn.addEventListener('click', () => showTab('allBranchSnapshotTabBtn'));
     }
-
-    // NEW: Event listener for All Branch Snapshot button
-    if (allBranchSnapshotBtn) { // Added check in case element is not found
-        allBranchSnapshotBtn.addEventListener('click', (event) => {
-            event.preventDefault(); // Prevent default link behavior (e.g., navigating)
-            if (reportsDropdown) reportsDropdown.classList.remove('show'); // Hide dropdown after selection
-            renderAllBranchSnapshot();
-        });
+    if (allStaffOverallPerformanceTabBtn) {
+        allStaffOverallPerformanceTabBtn.addEventListener('click', () => showTab('allStaffOverallPerformanceTabBtn'));
     }
-
-    // NEW: Event listener for All Staff Overall Performance button
-    if (allStaffOverallPerformanceBtn) {
-        allStaffOverallPerformanceBtn.addEventListener('click', (event) => {
-            event.preventDefault();
-            if (reportsDropdown) reportsDropdown.classList.remove('show');
-            renderOverallStaffPerformanceReport();
-        });
-    }
-
-    // NEW: Close the dropdown if the user clicks outside of it
-    window.addEventListener('click', (event) => {
-        // Check if reportsDropdown exists before trying to access its classList
-        if (reportsDropdown && reportsDropdown.classList.contains('show') && !event.target.closest('.dropdown')) {
-            reportsDropdown.classList.remove('show');
-        }
-    });
 
 
     // Initial data fetch when the page loads

@@ -12,36 +12,97 @@
         <nav class="report-tabs">
             <button class="tab-button active" id="allBranchSnapshotTabBtn">All Branch Snapshot</button>
             <button class="tab-button" id="allStaffOverallPerformanceTabBtn">All Staff Performance (Overall)</button>
+            <button class="tab-button" id="nonParticipatingBranchesTabBtn">Non-Participating Branches</button> <!-- RESTORED TAB -->
+            <button class="tab-button" id="employeeManagementTabBtn">Employee Management</button>
         </nav>
     </header>
 
     <main>
-        <section class="controls-panel">
-            <div class="dropdown-group">
-                <label for="branchSelect">Select Branch:</label>
-                <select id="branchSelect">
-                    <option value="">-- Select a Branch --</option>
-                </select>
+        <!-- NEW: Dedicated message area for temporary status messages -->
+        <div id="statusMessage" class="message-container"></div> 
+
+        <section id="reportsSection" class="report-section">
+            <div class="controls-panel">
+                <div class="dropdown-group">
+                    <label for="branchSelect">Select Branch:</label>
+                    <select id="branchSelect">
+                        <option value="">-- Select a Branch --</option>
+                    </select>
+                </div>
+
+                <div id="employeeFilterPanel" class="dropdown-group" style="display: none;">
+                    <label for="employeeSelect">Select Employee:</label>
+                    <select id="employeeSelect">
+                        <option value="">-- Select an Employee --</option>
+                    </select>
+                </div>
+
+                <div id="viewOptions" class="view-options" style="display: none;">
+                    <!-- 'Branch Summary' button removed as per request -->
+                    <button class="btn" id="viewBranchPerformanceReportBtn">Branch Performance Report</button>
+                    <button class="btn" id="viewEmployeeSummaryBtn">Employee Summary (Current Month)</button>
+                    <button class="btn" id="viewAllEntriesBtn">View All Entries (Employee)</button>
+                    <button class="btn" id="viewPerformanceReportBtn">Employee Performance Report</button>
+                </div>
             </div>
 
-            <div id="employeeFilterPanel" class="dropdown-group" style="display: none;">
-                <label for="employeeSelect">Select Employee:</label>
-                <select id="employeeSelect">
-                    <option value="">-- Select an Employee --</option>
-                </select>
-            </div>
-
-            <div id="viewOptions" class="view-options" style="display: none;">
-                <button id="viewBranchSummaryBtn" class="btn">View All Staff Activity</button>
-                <button id="viewBranchPerformanceReportBtn" class="btn">View All Staff Performance Report</button>
-                <button id="viewEmployeeSummaryBtn" class="btn">View Employee Summary</button>
-                <button id="viewAllEntriesBtn" class="btn">View All Entries</button>
-                <button id="viewPerformanceReportBtn" class="btn">View Employee Performance Report</button>
+            <div id="reportDisplay" class="report-display">
+                <p>Select a branch and/or employee to view reports.</p>
             </div>
         </section>
 
-        <section id="reportDisplay" class="report-display">
-            <p>Loading reports...</p>
+        <section id="employeeManagementSection" class="employee-management-section" style="display: none;">
+            <h2>Employee Management</h2>
+            <div id="employeeManagementMessage" class="message"></div>
+
+            <div class="form-section">
+                <h3>Add New Employee</h3>
+                <form id="addEmployeeForm" class="employee-form">
+                    <div class="form-group">
+                        <label for="newEmployeeName">Employee Name:</label>
+                        <input type="text" id="newEmployeeName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="newEmployeeCode">Employee Code:</label>
+                        <input type="text" id="newEmployeeCode" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="newBranchName">Branch Name:</label>
+                        <input type="text" id="newBranchName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="newDesignation">Designation:</label>
+                        <input type="text" id="newDesignation">
+                    </div>
+                    <button type="submit" class="btn">Add Employee</button>
+                </form>
+            </div>
+
+            <div class="form-section">
+                <h3>Bulk Add Employees</h3>
+                <form id="bulkAddEmployeeForm" class="employee-form">
+                    <div class="form-group">
+                        <label for="bulkEmployeeBranchName">Branch Name for Bulk Entry:</label>
+                        <input type="text" id="bulkEmployeeBranchName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="bulkEmployeeDetails">Employee Details (Name,Code,Designation - one per line):</label>
+                        <textarea id="bulkEmployeeDetails" rows="10" placeholder="e.g.,&#10;Alice,EMP001,Manager&#10;Bob,EMP002,Sales Exec&#10;Charlie,EMP003" required></textarea>
+                    </div>
+                    <button type="submit" class="btn">Add Bulk Employees</button>
+                </form>
+            </div>
+
+            <div class="form-section">
+                <h3>Delete Employee</h3>
+                <form id="deleteEmployeeForm" class="employee-form">
+                    <div class="form-group">
+                        <label for="deleteEmployeeCode">Employee Code to Delete:</label>
+                        <input type="text" id="deleteEmployeeCode" required>
+                    </div>
+                    <button type="submit" class="btn danger-btn">Delete Employee</button>
+                </form>
+            </div>
         </section>
     </main>
 

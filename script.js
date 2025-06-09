@@ -28,6 +28,12 @@ document.addEventListener('DOMContentLoaded', () => {
             'Reference': 1 * MONTHLY_WORKING_DAYS,
             'New Customer Leads': 20
         },
+'Seniors': { // Added Investment Staff with custom Visit target
+            'Visit': 30,
+            'Call': 5 * MONTHLY_WORKING_DAYS,
+            'Reference': 1 * MONTHLY_WORKING_DAYS,
+            'New Customer Leads': 20
+        },
         'Default': { // For all other designations not explicitly defined
             'Visit': 5,
             'Call': 3 * MONTHLY_WORKING_DAYS,
@@ -35,7 +41,6 @@ document.addEventListener('DOMContentLoaded', () => {
             'New Customer Leads': 20
         }
     };
-
     // Predefined list of branches for the dropdown and "no participation" check
     const PREDEFINED_BRANCHES = [
         "Angamaly", "Corporate Office", "Edappally", "Harippad", "Koduvayur", "Kuzhalmannam",

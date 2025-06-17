@@ -24,13 +24,13 @@ document.addEventListener('DOMContentLoaded', () => {
         },
         'Investment Staff': { // Added Investment Staff with custom Visit target
             'Visit': 15,
-            'Call': 5 * MONTHLY_WORKING_DAYS,
+            'Call': 3 * MONTHLY_WORKING_DAYS,
             'Reference': 1 * MONTHLY_WORKING_DAYS,
             'New Customer Leads': 20
         },
 'Seniors': { // Added Investment Staff with custom Visit target
             'Visit': 15,
-            'Call': 5 * MONTHLY_WORKING_DAYS,
+            'Call': 3 * MONTHLY_WORKING_DAYS,
             'Reference': 1 * MONTHLY_WORKING_DAYS,
             'New Customer Leads': 20
         },

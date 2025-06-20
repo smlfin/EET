@@ -1,4 +1,33 @@
 document.addEventListener('DOMContentLoaded', () => {
+// --- START: FRONT-END PASSWORD PROTECTION ---
+    const ACCESS_PASSWORD = "sml4576"; // <--- CHANGE THIS TO YOUR DESIRED PASSWORD
+
+    function authenticateUser() {
+        const enteredPassword = prompt("Please enter the access password to proceed:");
+
+        if (enteredPassword === ACCESS_PASSWORD) {
+            return true; // Password is correct
+        } else {
+            // Password is incorrect or user clicked Cancel
+            alert("Access denied.");
+            document.body.innerHTML = '<h1>Access Denied</h1><p>You do not have permission to view this page.</p>';
+            // If you want a completely blank page, use:
+            // document.body.innerHTML = '';
+            return false; // Stop execution
+        }
+    }
+
+    // Call the authentication function at the very beginning
+    if (!authenticateUser()) {
+        return; // Stop the script if authentication fails
+    }
+    // --- END: FRONT-END PASSWORD PROTECTION ---
+
+    // ======================================================================
+    //  BELOW THIS LINE IS WHERE ALL YOUR EXISTING script.js CODE SHOULD GO
+    // ======================================================================
+
+
     // *** Configuration ***
     // This URL is for your Canvassing Data sheet. Ensure it's correct and published as CSV.
     // NOTE: If you are still getting 404, this URL is the problem.

@@ -3,22 +3,108 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Employee Effort Tracker</title>
+    <title>SNL Employee Effort Tracker</title>
     <link rel="stylesheet" href="style.css">
+    <style>
+        /* Basic CSS for the access denied overlay and hidden input */
+        #accessDeniedOverlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #f0f0f0; /* Light background */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            z-index: 1000; /* Make sure it's on top */
+            color: #333;
+        }
+        #accessDeniedOverlay h1 {
+            color: #dc3545; /* Red for error */
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        #accessDeniedOverlay p {
+            font-size: 1.2em;
+            margin-bottom: 20px;
+        }
+        #secretPasswordInputContainer {
+    margin-top: 20px;
+    display: flex; /* Changed to flex to make it visible */
+    flex-direction: column;
+    align-items: center;
+        }
+        #secretPasswordInputContainer input {
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 1em;
+            width: 200px;
+            text-align: center;
+        }
+        #secretPasswordInputContainer button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1em;
+        }
+        #secretPasswordInputContainer button:hover {
+            background-color: #0056b3;
+        }
+        /* Style for the "secret click target" - making it inconspicuous */
+        #secretClickTarget {
+            position: absolute; /* Use absolute positioning if needed to place it precisely */
+            /* Example: bottom-right corner of the footer */
+            bottom: 5px;
+            right: 5px;
+            width: 30px; /* Make it very small */
+            height: 30px; /* Make it very small */
+            cursor: pointer;
+            /* You can make it visually transparent, but still clickable */
+            background-color: rgba(0, 0, 0, 0); /* Completely transparent */
+            /* border: 1px solid red; /* For debugging placement, remove in production */
+            z-index: 1001; /* Ensure it's above the overlay but not on dashboard */
+        }
+        /* Hide the actual dashboard content initially */
+        #dashboardContent {
+            display: none;
+        }
+    </style>
 </head>
 <body>
-    <header>
-        <h1>Employee Effort Tracker</h1>
-        <nav class="report-tabs">
+    <div id="accessDeniedOverlay">
+        <h1>Access Denied</h1>
+        <p>You do not have permission to view this page. Please contact support.</p>
+        <div id="secretPasswordInputContainer">
+            <input type="password" id="secretPasswordInput" placeholder="Enter password">
+            <button id="submitSecretPassword">Unlock</button>
+            <p id="passwordErrorMessage" style="color: red; display: none; margin-top: 5px;"></p>
+        </div>
+    </div>
+
+    <div id="dashboardContent">
+       <header>
+        <h1>Employee Canvassing Dashboard</h1>
+       <nav class="report-tabs">
             <button class="tab-button active" id="allBranchSnapshotTabBtn">All Branch Snapshot</button>
             <button class="tab-button" id="allStaffOverallPerformanceTabBtn">All Staff Performance (Overall)</button>
-            <button class="tab-button" id="nonParticipatingBranchesTabBtn">Non-Participating Branches</button> <!-- RESTORED TAB -->
+            <button class="tab-button" id="nonParticipatingBranchesTabBtn">Non-Participating Branches</button>
+            <button class="tab-button" id="branchPerformanceTabBtn">Branch Performance Reports</button>
+            <button class="tab-button" id="performanceSummaryTabBtn">Performance Summary Dashboard</button>
+            <button class="tab-button" id="detailedCustomerViewTabBtn">Detailed Customer View</button> 
             <button class="tab-button" id="employeeManagementTabBtn">Employee Management</button>
+            <button class="tab-button" id="downloadOverallStaffPerformanceReportBtn">Download Overall Performance Report</button>
         </nav>
     </header>
 
     <main>
-        <!-- NEW: Dedicated message area for temporary status messages -->
         <div id="statusMessage" class="message-container"></div> 
 
         <section id="reportsSection" class="report-section">
@@ -38,16 +124,51 @@
                 </div>
 
                 <div id="viewOptions" class="view-options" style="display: none;">
-                    <!-- 'Branch Summary' button removed as per request -->
-                    <button class="btn" id="viewBranchPerformanceReportBtn">Branch Performance Report</button>
-                    <button class="btn" id="viewEmployeeSummaryBtn">Employee Summary (Current Month)</button>
-                    <button class="btn" id="viewAllEntriesBtn">View All Entries (Employee)</button>
-                    <button class="btn" id="viewPerformanceReportBtn">Employee Performance Report</button>
+                   <button class="btn" id="viewBranchPerformanceReportBtn">Branch Performance Report</button>
+                <button class="btn" id="viewEmployeeSummaryBtn">Employee Summary (Current Month)</button>
+                <button class="btn" id="viewAllEntriesBtn">View All Entries (Employee)</button>
+                <button class="btn" id="viewPerformanceReportBtn">Employee Performance Report</button>
+                <button class="btn" id="viewBranchVisitLeaderboardBtn">Branch Visit Analysis</button>
+                <button class="btn" id="viewBranchCallLeaderboardBtn">Branch Call Analysis</button>
+                <button class="btn" id="viewStaffParticipationBtn">Staff Participation</button>
                 </div>
             </div>
 
             <div id="reportDisplay" class="report-display">
                 <p>Select a branch and/or employee to view reports.</p>
+            </div>
+        </section>
+
+        <section id="detailedCustomerViewSection" class="report-section" style="display: none;">
+            <h2>Detailed Customer View</h2>
+            <div class="controls-panel">
+                <div class="dropdown-group">
+                    <label for="customerViewBranchSelect">Select Branch:</label>
+                    <select id="customerViewBranchSelect">
+                        <option value="">-- Select a Branch --</option>
+                    </select>
+                </div>
+                <div class="dropdown-group">
+                    <label for="customerViewEmployeeSelect">Select Employee:</label>
+                    <select id="customerViewEmployeeSelect">
+                        <option value="">-- Select an Employee --</option>
+                    </select>
+                </div>
+            </div>
+            <div id="customerCanvassedList">
+            </div>
+            <div id="customerDetailsContent">
+                <div class="customer-cards-container">
+                    <div class="customer-detail-card card-color-1" id="customerCard1">
+                        <h3>Family Details</h3>
+                    </div>
+                    <div class="customer-detail-card card-color-2" id="customerCard2">
+                        <h3>Children Details</h3>
+                    </div>
+                    <div class="customer-detail-card card-color-3" id="customerCard3">
+                        <h3>Customer Profile & Remarks</h3>
+                    </div>
+                </div>
             </div>
         </section>
 
@@ -104,12 +225,51 @@
                 </form>
             </div>
         </section>
-    </main>
 
-    <footer>
-        <p>&copy; 2025 Employee Canvassing Dashboard</p>
-    </footer>
+        <section id="performanceSummarySection" class="content-section" style="display: none;">
+            <h2>Performance Summary Dashboard</h2>
 
-    <script src="script.js"></script>
-</body>
+            <div class="dashboard-controls" style="margin-bottom: 20px;">
+                <label for="dashboardBranchSelect">Filter by Branch:</label>
+                <select id="dashboardBranchSelect">
+                    <option value="all">All Branches</option>
+                </select>
+                <button id="downloadPerformanceSummaryReportBtn" style="background-color: #28a745; color: white; padding: 8px 15px; border: none; border-radius: 4px; cursor: pointer; margin-left: 15px;">Download Performance Summary CSV</button>
+            </div>
+
+            <div class="summary-cards" style="display: flex; justify-content: space-around; flex-wrap: wrap; margin-bottom: 30px;">
+                <div class="card">
+                    <h3>Total Staff Tracked</h3>
+                    <p id="totalStaffTrackedCount">0</p>
+                </div>
+                </div>
+
+            <h3>Participation & Target Completion Overview</h3>
+            <div class="dashboard-table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Employee Name</th>
+                            <th>Branch</th>
+                            <th>Designation</th>
+                            <th>Visit (Actual/Target/%)</th>
+                            <th>Call (Actual/Target/%)</th>
+                            <th>Reference (Actual/Target/%)</th>
+                            <th>New Lead (Actual/Target/%)</th>
+                            <th>Overall Completion</th>
+                            </tr>
+                    </thead>
+                    <tbody id="performanceSummaryTableBody">
+                        <tr><td colspan="8">Loading performance data...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+        </main>
+        <footer>
+            <p>&copy; 2025 Employee Canvassing Dashboard</p>
+        </footer>
+    </div>
+<script src="script.js"></script>
+   </body>
 </html>
